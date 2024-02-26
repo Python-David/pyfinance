@@ -1,62 +1,112 @@
+import _tkinter
 import tkinter as tk
+from calendar import monthrange
 from tkinter import ttk, messagebox
 
+from tkcalendar import DateEntry
 
 from views.utilities import validate_date
 
 
 class ExpenseGUI:
     def __init__(self, parent, controller):
-        self.parent = parent  # The parent widget, likely a tab in a Notebook widget
-        self.controller = controller  # The main controller instance
-
-        # Create the expense frame as part of the parent
+        self.parent = parent
+        self.controller = controller
         self.frame = ttk.Frame(self.parent)
 
-        # Initialize variables to store user input
         self.expense_category = tk.StringVar()
         self.expense_amount = tk.DoubleVar()
-        self.expense_date = tk.StringVar()
+        self.selected_year = tk.StringVar()
+        self.selected_month = tk.StringVar()
+        self.selected_day = tk.StringVar()
 
-        # Build the expense UI components
         self.build_ui()
 
     def build_ui(self):
-        # Create a frame within the tab to hold form elements, make it expandable
         input_frame = ttk.Frame(self.frame)
         input_frame.pack(fill="both", expand=True)
-        input_frame.grid_columnconfigure(1, weight=1)  # Make the entry fields expand
+        input_frame.grid_columnconfigure(1, weight=1)
 
-        # Define the form fields
-        fields = [
-            ("Category:", self.expense_category),
-            ("Amount:", self.expense_amount),
-            ("Date (YYYY-MM-DD):", self.expense_date)
-        ]
+        # Setup for Category and Amount
+        ttk.Label(input_frame, text="Category:").grid(row=0, column=0, padx=10, pady=5, sticky='w')
+        ttk.Entry(input_frame, textvariable=self.expense_category).grid(row=0, column=1, padx=10, pady=5, sticky='ew')
 
-        # Setup the form fields using grid
-        for i, (label, var) in enumerate(fields):
-            ttk.Label(input_frame, text=label).grid(row=i, column=0, padx=10, pady=5, sticky='w')
-            entry = ttk.Entry(input_frame, textvariable=var)
-            entry.grid(row=i, column=1, padx=10, pady=5, sticky='ew')  # Ensure entries expand with the frame
+        ttk.Label(input_frame, text="Amount:").grid(row=1, column=0, padx=10, pady=5, sticky='w')
+        ttk.Entry(input_frame, textvariable=self.expense_amount).grid(row=1, column=1, padx=10, pady=5, sticky='ew')
 
-        # Submit button, avoid over-expansion by not using 'sticky'
+        # Date Dropdowns
+        self.setup_date_dropdowns(input_frame)
+
+        input_frame.grid_rowconfigure(3, minsize=20)
+
+        # Submit button
         submit_btn = ttk.Button(input_frame, text='Submit', command=self.add_expense)
-        submit_btn.grid(row=len(fields), column=0, columnspan=2, pady=10)
+        submit_btn.grid(row=4, column=0, columnspan=2, pady=10)
 
-        # Ensure the frame expands with the tab
         self.frame.pack(fill="both", expand=True)
+
+    def setup_date_dropdowns(self, frame):
+        ttk.Label(frame, text="Date:").grid(row=2, column=0, padx=10, pady=5, sticky='w')
+
+        # Frame to hold year, month, and day dropdowns together
+        date_frame = ttk.Frame(frame)
+        date_frame.grid(row=2, column=1, padx=10, pady=5, sticky='ew')
+        frame.grid_columnconfigure(1, weight=1)  # Allow the date frame to expand
+
+        # Year Dropdown
+        years = list(range(1900, 2101))
+        self.selected_year = tk.StringVar(value="2021")
+        year_cb = ttk.Combobox(date_frame, textvariable=self.selected_year, values=years, width=10)
+        year_cb.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
+
+        # Month Dropdown
+        months = [str(i).zfill(2) for i in range(1, 13)]  # Leading zeros
+        self.selected_month = tk.StringVar(value="01")
+        month_cb = ttk.Combobox(date_frame, textvariable=self.selected_month, values=months, width=5)
+        month_cb.grid(row=0, column=1, padx=5, pady=5, sticky='ew')
+
+        # Day Dropdown
+        days = [str(i).zfill(2) for i in range(1, 32)]  # Leading zeros
+        self.selected_day = tk.StringVar(value="01")
+        day_cb = ttk.Combobox(date_frame, textvariable=self.selected_day, values=days, width=5)
+        day_cb.grid(row=0, column=2, padx=5, pady=5, sticky='ew')
+
+        # Ensure date_frame fills its cell
+        date_frame.grid_columnconfigure(0, weight=1)
+        date_frame.grid_columnconfigure(1, weight=1)
+        date_frame.grid_columnconfigure(2, weight=1)
+
+        # Update days based on year and month selection
+        month_cb.bind("<<ComboboxSelected>>", lambda e: self.update_days(month_cb, year_cb, day_cb))
+        year_cb.bind("<<ComboboxSelected>>", lambda e: self.update_days(month_cb, year_cb, day_cb))
+
+    def update_days(self, month_cb, year_cb, day_cb):
+        year = int(self.selected_year.get())
+        month = int(self.selected_month.get())
+        days_in_month = monthrange(year, month)[1]
+        day_cb['values'] = list(range(1, days_in_month + 1))
 
     def add_expense(self):
         category = self.expense_category.get()
-        amount = self.expense_amount.get()
-        date_str = self.expense_date.get()
+        try:
+            # Since self.expense_amount is a DoubleVar, this conversion may raise a _tkinter.TclError
+            amount = self.expense_amount.get()
+            # Format the amount to two decimal places
+            amount = round(amount, 2)
+        except _tkinter.TclError:
+            messagebox.showerror("Invalid Input", "Please enter a valid number for the amount.")
+            return
+        year = self.selected_year.get()
+        month = self.selected_month.get()
+        day = self.selected_day.get()
+        date_str = f"{year}-{month.zfill(2)}-{day.zfill(2)}"  # Format the date as YYYY-MM-DD
 
         # Basic validation before attempting to add the expense
-        if not category or not date_str or amount <= 0:
+        if not category or amount <= 0:
             messagebox.showerror("Error", "Please fill all fields correctly. Amount must be positive.")
             return
 
+        # Assuming validate_date is a function that validates the constructed date_str
         valid_date, date_message = validate_date(date_str)
         if not valid_date:
             messagebox.showerror("Error", date_message)

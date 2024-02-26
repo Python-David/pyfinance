@@ -15,6 +15,9 @@ class UserController:
         return bcrypt.checkpw(provided_password.encode('utf-8'), stored_hash.encode('utf-8'))
 
     def register_new_user(self, name: str, email: str, password: str) -> (bool, str):
+        email = email.lower()
+        name = ' '.join(part.capitalize() for part in name.split())
+
         # Check if email already exists
         existing_user = self.db_session.query(User).filter(User.email == email).first()
         if existing_user:
@@ -33,6 +36,7 @@ class UserController:
             return False, "An error occurred during registration."
 
     def validate_login(self, email: str, password: str) -> (bool, str, int):
+        email = email.lower()
         user = self.db_session.query(User).filter(User.email == email).first()
         if user:
             if self.verify_password(password, user.hashed_password):

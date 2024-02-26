@@ -3,14 +3,21 @@ from datetime import datetime
 
 
 def validate_non_empty(input_string):
-        """Check that the field is not empty."""
-        return bool(input_string.strip())
+    """Check that the field is not empty."""
+    return bool(input_string.strip())
 
 
 def validate_email(email):
     """Validate the email format."""
     pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     return re.match(pattern, email) is not None
+
+
+def enforce_max_length(value, max_length):
+    if len(value) > max_length:
+        return False  # Reject the character
+    else:
+        return True
 
 
 def validate_password_strength(password):
