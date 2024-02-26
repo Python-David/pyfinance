@@ -3,8 +3,10 @@ import tkinter as tk
 from calendar import monthrange
 from tkinter import ttk, messagebox
 
-from tkcalendar import DateEntry
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
+from views.plotting_utils import plot_expenses_over_time, plot_expense_distribution
 from views.utilities import validate_date
 
 
@@ -42,6 +44,21 @@ class ExpenseGUI:
         # Submit button
         submit_btn = ttk.Button(input_frame, text='Submit', command=self.add_expense)
         submit_btn.grid(row=4, column=0, columnspan=2, pady=10)
+
+        # Visualization frame setup
+        vis_frame = ttk.Frame(self.frame)  # Frame to hold the charts
+        vis_frame.pack(fill="both", expand=True, pady=20)  # Add some space between the input frame and visualizations
+        vis_frame.grid_columnconfigure(0, weight=1)
+        vis_frame.grid_columnconfigure(1, weight=1)
+
+        # Use imported functions to plot
+        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May']  # Example data
+        expenses = [200, 150, 300, 250, 180]  # Example data
+        plot_expenses_over_time(vis_frame, months, expenses)
+
+        categories = ['Rent', 'Food', 'Utilities', 'Entertainment']  # Example data
+        values = [400, 300, 150, 100]  # Example data
+        plot_expense_distribution(vis_frame, categories, values)
 
         self.frame.pack(fill="both", expand=True)
 
