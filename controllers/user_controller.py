@@ -1,6 +1,13 @@
-from database import SessionLocal  # Assuming this is your session factory
+from datetime import datetime, timedelta
+
+from sqlalchemy import and_
+
+from controllers.utilities import generate_session_token
+from database import SessionLocal
+from models.sessions import Session
 from models.user import User
 import bcrypt
+import pytz
 
 
 class UserController:
@@ -35,16 +42,56 @@ class UserController:
             print(f"Error during user registration: {e}")
             return False, "An error occurred during registration."
 
-    def validate_login(self, email: str, password: str) -> (bool, str, int):
+    def create_session(self, user_id):
+        token = generate_session_token()
+        expires_at = datetime.utcnow() + timedelta(hours=1)  # 1 hour from now
+        new_session = Session(token=token, user_id=user_id, expires_at=expires_at)
+        self.db_session.add(new_session)
+        self.db_session.commit()
+        return token
+
+    def validate_login(self, email: str, password: str) -> (bool, str, str):
         email = email.lower()
         user = self.db_session.query(User).filter(User.email == email).first()
         if user:
             if self.verify_password(password, user.hashed_password):
-                return True, "Login successful.", user.id
+                # Generate a session token upon successful login
+                session_token = self.create_session(user.id)
+                return True, "Login successful.", session_token
             else:
                 return False, "Incorrect password.", None
         else:
             return False, "User not found.", None
+
+    def is_session_valid(self, session_token):
+        # Query the database for the session token
+        session = self.db_session.query(Session).filter(
+            and_(
+                Session.token == session_token,
+                Session.expires_at > datetime.utcnow()  # Check if the session has not expired
+            )
+        ).first()
+
+        # If a session is found and it's not expired, return True
+        if session:
+            return True
+        else:
+            # If no session is found or it's expired, return False
+            return False
+
+    def get_user_id_from_session(self, session_token):
+        # Query the database for the session using the token
+        session = self.db_session.query(Session).filter(Session.token == session_token).first()
+
+        # Ensure datetime.now() is timezone-aware, using UTC in this example
+        now_utc = datetime.now(pytz.utc)
+
+        # Check if the session exists and has not expired
+        if session and session.expires_at > now_utc:
+            return session.user_id
+        else:
+            # Handle the case where the session is not found or has expired
+            return None
 
     def close_session(self):
         # Make sure to close the session when it's no longer needed

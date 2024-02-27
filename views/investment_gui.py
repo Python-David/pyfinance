@@ -3,6 +3,7 @@ import tkinter as tk
 from calendar import monthrange
 from tkinter import ttk, messagebox
 
+from views.plotting_utils import plot_investment_distribution_by_type, plot_total_investments_over_time
 from views.utilities import validate_date
 
 
@@ -40,6 +41,28 @@ class InvestmentGUI:
         # Submit button
         submit_btn = ttk.Button(input_frame, text='Submit', command=self.add_investment)
         submit_btn.grid(row=4, column=0, columnspan=2, pady=10)
+
+        # Visualization frame setup
+        vis_frame = ttk.Frame(self.frame)  # Frame to hold the charts
+        vis_frame.pack(fill="both", expand=True, pady=20)  # Add some space between the input frame and visualizations
+        vis_frame.grid_columnconfigure(0, weight=1)
+        vis_frame.grid_columnconfigure(1, weight=1)
+
+        # Use imported functions to plot
+        dates = [
+            '2023-08-31',
+            '2023-09-30',
+            '2023-10-30',
+            '2023-11-29',
+            '2023-12-29',
+            '2024-01-28',
+        ]  # Example data
+        investments = [1000, 1150, 1300, 1450, 1600, 1750]  # Example data
+        plot_total_investments_over_time(vis_frame, dates, investments)
+
+        categories = ['Stocks', 'Bonds', 'Crypto', 'Business']  # Example data
+        values = [400, 300, 150, 100]  # Example data
+        plot_investment_distribution_by_type(vis_frame, categories)
 
         self.frame.pack(fill="both", expand=True)
 
@@ -122,4 +145,3 @@ class InvestmentGUI:
             # Reset the form fields or update the UI as necessary
         else:
             messagebox.showerror("Error", message)
-

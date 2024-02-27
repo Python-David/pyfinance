@@ -20,6 +20,12 @@ class MainController:
     def validate_login(self, email, password):
         return self.user_controller.validate_login(email, password)
 
+    def is_session_valid(self, session_token):
+        return self.user_controller.is_session_valid(session_token)
+
+    def get_user_id_from_session(self, session_token):
+        return self.user_controller.get_user_id_from_session(session_token)
+
     def close_sessions(self):
         self.finance_controller.close_session()
         self.user_controller.close_session()
