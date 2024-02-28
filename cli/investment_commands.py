@@ -41,13 +41,28 @@ async def add_investments_from_csv(ctx, file_path):
     headers = INVESTMENT_CSV_HEADERS
     csv_client = CsvClient(file_path=file_path, headers=headers)
 
-    async for row in csv_client.read_large_csv():  # Directly iterate over each row
-        investment_name = row["TYPE"]
-        amount = float(row["AMOUNT"])  # Ensure amount is a float
-        date_str = row["DATE"]
-        success, message = MainController().add_investment(user_id, investment_name, amount, date_str)
-        if success:
-            click.echo(f"Added investment: {investment_name}, {amount}, {date_str}. | {message}")
-        else:
-            click.echo(f"Failed to add investment: {investment_name}, {amount}, {date_str}. | {message}")
+    successful_rows = 0
+    failed_rows = 0
+    failed_details = []
 
+    async for row in csv_client.read_large_csv():  # Directly iterate over each row
+        try:
+            investment_name = row["TYPE"]
+            amount = float(row["AMOUNT"])  # Ensure amount is a float
+            date_str = row["DATE"]
+            success, message = MainController().add_investment(user_id, investment_name, amount, date_str)
+            if success:
+                click.echo(f"Added investment: {investment_name}, {amount}, {date_str}. | {message}")
+                successful_rows += 1
+            else:
+                click.echo(f"Failed to add investment: {investment_name}, {amount}, {date_str}. | {message}")
+        except Exception as e:
+            click.echo(f"Error processing row: {row} | Error: {str(e)}")
+            failed_rows += 1
+            failed_details.append((row, str(e)))
+    # Final report to the user
+    click.echo(f"Upload complete. Successfully added {successful_rows} investments.")
+    if failed_rows > 0:
+        click.echo(f"Failed to add {failed_rows} investments. Review the errors for details.")
+        for detail in failed_details:
+            click.echo(f"Failed row: {detail[0]} | Error: {detail[1]}")
