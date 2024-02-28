@@ -1,4 +1,4 @@
-import click
+import asyncclick as click
 from .utilities import save_session_token
 from controllers.main_controller import MainController
 
@@ -7,9 +7,11 @@ from controllers.main_controller import MainController
 @click.argument('name')
 @click.argument('email')
 @click.argument('password')
-def register(name, email, password):
+async def register(name, email, password):
     """Register a new user."""
-    result = MainController().register_new_user(name, email, password)
+    # Ideally, MainController.register_new_user should be an async function
+    controller = MainController()
+    result = controller.register_new_user(name, email, password)
     click.echo(result)
 
 
@@ -17,9 +19,11 @@ def register(name, email, password):
 @click.option('--email', required=True, help='Your email address.')
 @click.option('--password', required=True, help='Your password.', hide_input=True)
 @click.pass_context
-def login(ctx, email, password):
+async def login(ctx, email, password):
     """Login a user."""
-    success, message, token = MainController().validate_login(email, password)
+    # Ideally, MainController.validate_login should be an async function
+    controller = MainController()
+    success, message, token = controller.validate_login(email, password)
     if success:
         click.echo(message)
         save_session_token(token)

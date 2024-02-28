@@ -1,6 +1,8 @@
 import re
 from datetime import datetime
 
+from config import DATE_FORMAT
+
 
 def validate_non_empty(input_string):
     """Check that the field is not empty."""
@@ -38,7 +40,7 @@ def validate_password_strength(password):
 def validate_date(date_str):
     """Validate date format YYYY-MM-DD and return boolean status and message."""
     try:
-        datetime.strptime(date_str, '%Y-%m-%d')
+        datetime.strptime(date_str, DATE_FORMAT)
         return True, "Valid date."
     except ValueError:
         return False, "Invalid date format. Use YYYY-MM-DD."
