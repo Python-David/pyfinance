@@ -18,5 +18,9 @@ class FinanceController:
         expenses = self.finance_tracker.get_expenses_by_category(user_id)
         return expenses
 
+    def get_expenses(self, user_id, year=None, month=None, day=None):
+        expenses = self.finance_tracker.get_expenses(user_id, year, month, day)
+        return expenses
+
     def close_session(self):
         self.finance_tracker.close_session()

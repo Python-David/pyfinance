@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import func
+from sqlalchemy import func, extract, and_
 from sqlalchemy.exc import IntegrityError
 
 from database import SessionLocal
@@ -70,6 +70,33 @@ class FinanceTracker:
         except Exception as e:
             self.db_session.rollback()
             yield {"error": True, "message": f"Failed to fetch expenses by category: {e}"}
+
+    def get_expenses(self, user_id, year=None, month=None, day=None):
+        """Fetch expenses for a specific user, filtered by year, month, and day, all optional."""
+        query = self.db_session.query(Expense).filter(Expense.user_id == user_id)
+
+        # Apply filters based on provided arguments
+        if year:
+            query = query.filter(func.extract('year', Expense.date) == year)
+        if month:
+            query = query.filter(func.extract('month', Expense.date) == month)
+        if day:
+            query = query.filter(func.extract('day', Expense.date) == day)
+
+        # If no year, month, or day is specified, default to the current month and year
+        if not any([year, month, day]):
+            today = datetime.now()
+            query = query.filter(
+                and_(
+                    func.extract('year', Expense.date) == today.year,
+                    func.extract('month', Expense.date) == today.month
+                )
+            )
+
+        # Order by date for chronological listing
+        query = query.order_by(Expense.date.asc())
+
+        return query.all()
 
     # Make sure to close the session when it's no longer needed
     def close_session(self):

@@ -27,8 +27,10 @@ class MainController:
         return self.user_controller.get_user_id_from_session(session_token)
 
     def get_expenses_by_category(self, user_id):
-        expenses = self.finance_controller.get_expenses_by_category(user_id)
-        return expenses
+        return self.finance_controller.get_expenses_by_category(user_id)
+
+    def get_expenses(self, user_id, year=None, month=None, day=None):
+        return self.finance_controller.get_expenses(user_id, year, month, day)
 
     def close_sessions(self):
         self.finance_controller.close_session()

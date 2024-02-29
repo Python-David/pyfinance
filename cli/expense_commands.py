@@ -62,3 +62,22 @@ async def add_expenses_from_csv(ctx, file_path):
         for detail in failed_details:
             click.echo(f"Failed row: {detail[0]} | Error: {detail[1]}")
 
+
+@click.command()
+@requires_login
+@click.option('--year', type=int, help='Filter expenses by year.')
+@click.option('--month', type=int, help='Filter expenses by month (1-12).')
+@click.option('--day', type=int, help='Filter expenses by day (1-31).')
+@click.pass_context
+async def list_expenses(ctx, year=None, month=None, day=None):
+    """List out expenses, optionally filtered by month. Shows current month if no month is specified."""
+    user_id = MainController().get_user_id_from_session(ctx.obj.session_token)
+
+    expenses = MainController().finance_controller.get_expenses(user_id, year=year, month=month, day=day)
+
+    if not expenses:
+        click.echo("No expenses found.")
+        return
+
+    for expense in expenses:
+        click.echo(f"Category: {expense.category}, Amount: {expense.amount}, Date: {expense.date}")
