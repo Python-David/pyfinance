@@ -68,8 +68,9 @@ async def add_expenses_from_csv(ctx, file_path):
 @click.option('--year', type=int, help='Filter expenses by year.')
 @click.option('--month', type=int, help='Filter expenses by month (1-12).')
 @click.option('--day', type=int, help='Filter expenses by day (1-31).')
+@click.option('--show-csv', is_flag=True, help='Show the expenses in CSV format.')
 @click.pass_context
-async def list_expenses(ctx, year=None, month=None, day=None):
+async def list_expenses(ctx, year=None, month=None, day=None, show_csv=False):
     """List out expenses, optionally filtered by month. Shows current month if no month is specified."""
     user_id = MainController().get_user_id_from_session(ctx.obj.session_token)
 
@@ -79,5 +80,18 @@ async def list_expenses(ctx, year=None, month=None, day=None):
         click.echo("No expenses found.")
         return
 
-    for expense in expenses:
-        click.echo(f"Category: {expense.category}, Amount: {expense.amount}, Date: {expense.date}")
+    if show_csv:
+        # Define the path where you want to save the CSV
+        csv_path = "expenses.csv"
+        headers = ['Category', 'Amount', 'Date']
+        csv_client = CsvClient(file_path=csv_path, headers=headers)
+
+        # Convert expenses to a list of dictionaries matching the CSV headers
+        data = [{"Category": e.category, "Amount": e.amount, "Date": e.date} for e in expenses]
+
+        # Write the data to a CSV
+        await csv_client.write_to_csv(data)
+        click.echo(f"Expenses saved to CSV: {csv_path}")
+    else:
+        for expense in expenses:
+            click.echo(f"Category: {expense.category}, Amount: {expense.amount}, Date: {expense.date}")

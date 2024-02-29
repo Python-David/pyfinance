@@ -43,3 +43,12 @@ class CsvClient:
 
         processed_row = {key: value.strip() for key, value in row.items()}  # Example processing
         return processed_row
+
+    async def write_to_csv(self, data):
+        """Write data to a CSV file."""
+        async with aiofiles.open(self.file_path, mode='w', encoding='utf-8') as file:
+            writer = csv.DictWriter(file, fieldnames=self.headers, delimiter=self.delimiter)
+
+            await file.write(self.delimiter.join(self.headers) + '\n')  # Write headers
+            for row in data:
+                await file.write(self.delimiter.join(str(row.get(header, '')) for header in self.headers) + '\n')
