@@ -1,18 +1,18 @@
-from controllers.finance_controller import FinanceController
 from controllers.user_controller import UserController
+from controllers.finance_controller import FinanceTracker
 
 
 class MainController:
     def __init__(self):
-        self.finance_controller = FinanceController()
+        self.finance_tracker = FinanceTracker()
         self.user_controller = UserController()
         self.current_user_id = None
 
     def add_expense(self, user_id, category, amount, date_str):
-        return self.finance_controller.add_expense(user_id, category, amount, date_str)
+        return self.finance_tracker.add_expense(user_id, category, amount, date_str)
 
     def add_investment(self, user_id, investment_type, amount, date_str):
-        return self.finance_controller.add_investment(user_id, investment_type, amount, date_str)
+        return self.finance_tracker.add_investment(user_id, investment_type, amount, date_str)
 
     def register_new_user(self, name, email, password):
         return self.user_controller.register_new_user(name, email, password)
@@ -27,11 +27,11 @@ class MainController:
         return self.user_controller.get_user_id_from_session(session_token)
 
     def get_expenses_by_category(self, user_id):
-        return self.finance_controller.get_expenses_by_category(user_id)
+        return self.finance_tracker.get_expenses_by_category(user_id)
 
     def get_expenses(self, user_id, year=None, month=None, day=None):
-        return self.finance_controller.get_expenses(user_id, year, month, day)
+        return self.finance_tracker.get_expenses(user_id, year, month, day)
 
     def close_sessions(self):
-        self.finance_controller.close_session()
+        self.finance_tracker.close_session()
         self.user_controller.close_session()
