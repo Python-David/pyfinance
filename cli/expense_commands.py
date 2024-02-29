@@ -32,9 +32,6 @@ async def add_expense(ctx, category, amount, date_str):
 async def add_expenses_from_csv(ctx, file_path):
     """Add expenses from a CSV file."""
     user_id = MainController().get_user_id_from_session(ctx.obj.session_token)
-    if not user_id:
-        click.echo("You need to login first.")
-        return
 
     headers = EXPENSE_CSV_HEADERS
     csv_client = CsvClient(file_path=file_path, headers=headers)

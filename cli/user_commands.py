@@ -4,15 +4,18 @@ from controllers.main_controller import MainController
 
 
 @click.command()
-@click.argument('name')
-@click.argument('email')
-@click.argument('password')
+@click.option('--name', required=True, help='Your name.')
+@click.option('--email', required=True, help='Your email address.')
+@click.option('--password', required=True, help='Your password.', hide_input=True)
 async def register(name, email, password):
     """Register a new user."""
     # Ideally, MainController.register_new_user should be an async function
     controller = MainController()
-    result = controller.register_new_user(name, email, password)
-    click.echo(result)
+    success, message = controller.register_new_user(name, email, password)
+    if success:
+        click.echo(message)
+    else:
+        click.echo(message)
 
 
 @click.command()

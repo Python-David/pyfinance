@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from base import Base
 
@@ -13,6 +13,9 @@ class Expense(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
 
     user = relationship("User", back_populates="expenses")
+
+    # Define a unique constraint for category, amount, date, and user_id
+    __table_args__ = (UniqueConstraint('category', 'amount', 'date', 'user_id', name='unique_expense_constraint'),)
 
     def __repr__(self):
         return f"<Expense(id={self.id}, category='{self.category}', amount={self.amount}, date='{self.date}')>"

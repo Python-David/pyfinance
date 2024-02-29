@@ -16,9 +16,6 @@ async def add_investment(ctx, investment_type, amount, date_str):
     """Add a new investment."""
     controller = MainController()
     user_id = controller.get_user_id_from_session(ctx.obj.session_token)
-    if not user_id:
-        click.echo("Session is invalid or has expired. Please login again.")
-        return
 
     success, message = controller.add_investment(user_id, investment_type, amount, date_str)
     if success:
@@ -32,11 +29,8 @@ async def add_investment(ctx, investment_type, amount, date_str):
 @click.option('--file-path', required=True, type=click.Path(exists=True), help='Path to the CSV file containing investments.')
 @click.pass_context
 async def add_investments_from_csv(ctx, file_path):
-    """Add investments from a CSV file."""
+    """Add investments fromadd_investments_from_csv a CSV file."""
     user_id = MainController().get_user_id_from_session(ctx.obj.session_token)
-    if not user_id:
-        click.echo("You need to login first.")
-        return
 
     headers = INVESTMENT_CSV_HEADERS
     csv_client = CsvClient(file_path=file_path, headers=headers)

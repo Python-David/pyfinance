@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from base import Base
 
@@ -13,7 +13,12 @@ class Investment(Base):
     returns = Column(Float)
     user_id = Column(Integer, ForeignKey('users.id'))
 
+    # description
+
     user = relationship("User", back_populates="investments")
+
+    # Define a unique constraint for category, amount, date, and user_id
+    __table_args__ = (UniqueConstraint('type', 'amount', 'date', 'user_id', name='unique_investment_constraint'),)
 
     def __repr__(self):
         return f"<Investment(id={self.id}, type='{self.type}', amount={self.amount}, date='{self.date}', returns={self.returns})>"

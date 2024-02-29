@@ -1,4 +1,6 @@
 import asyncclick as click
+
+from .plot_commands import show
 from .user_commands import register, login
 from .expense_commands import add_expense, add_expenses_from_csv
 from .investment_commands import add_investment, add_investments_from_csv
@@ -23,6 +25,7 @@ cli.add_command(add_expense)
 cli.add_command(add_investment)
 cli.add_command(add_expenses_from_csv)
 cli.add_command(add_investments_from_csv)
+cli.add_command(show)
 
 if __name__ == '__main__':
     cli(_anyio_backend="asyncio")

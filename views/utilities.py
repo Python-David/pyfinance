@@ -37,6 +37,19 @@ def validate_password_strength(password):
         return True, "Password is strong."
 
 
+def validate_and_convert_date(date_str):
+    """Validate the date format and convert to a date object."""
+    is_valid_date, message = validate_date(date_str)
+    if not is_valid_date:
+        return None, message  # Return early if the date format is invalid
+
+    try:
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+        return date_obj, "Date is valid."
+    except ValueError as e:
+        return None, f"Date conversion error: {e}"
+
+
 def validate_date(date_str):
     """Validate date format YYYY-MM-DD and return boolean status and message."""
     try:

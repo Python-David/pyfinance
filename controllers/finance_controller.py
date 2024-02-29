@@ -14,5 +14,9 @@ class FinanceController:
         success, message = self.finance_tracker.add_investment(user_id, investment_type, amount, date_str, returns)
         return success, message
 
+    def get_expenses_by_category(self, user_id):
+        expenses = self.finance_tracker.get_expenses_by_category(user_id)
+        return expenses
+
     def close_session(self):
         self.finance_tracker.close_session()
