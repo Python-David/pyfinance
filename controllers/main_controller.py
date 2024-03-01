@@ -1,37 +1,56 @@
+from typing import Dict, Iterable, List, Optional, Tuple
+
+from controllers.finance_controller import FinanceController
 from controllers.user_controller import UserController
-from controllers.finance_controller import FinanceTracker
+from models import Expense
 
 
 class MainController:
     def __init__(self):
-        self.finance_tracker = FinanceTracker()
-        self.user_controller = UserController()
-        self.current_user_id = None
+        self.finance_controller: FinanceController = FinanceController()
+        self.user_controller: UserController = UserController()
+        self.current_user_id: Optional[int] = None
 
-    def add_expense(self, user_id, category, amount, date_str):
-        return self.finance_tracker.add_expense(user_id, category, amount, date_str)
+    def add_expense(
+        self, user_id: int, category: str, amount: float, date_str: str
+    ) -> Tuple[bool, str]:
+        return self.finance_controller.add_expense(user_id, category, amount, date_str)
 
-    def add_investment(self, user_id, investment_type, amount, date_str):
-        return self.finance_tracker.add_investment(user_id, investment_type, amount, date_str)
+    def add_investment(
+        self, user_id: int, investment_type: str, amount: float, date_str: str
+    ) -> Tuple[bool, str]:
+        return self.finance_controller.add_investment(
+            user_id, investment_type, amount, date_str
+        )
 
-    def register_new_user(self, name, email, password):
+    def register_new_user(
+        self, name: str, email: str, password: str
+    ) -> Tuple[bool, str]:
         return self.user_controller.register_new_user(name, email, password)
 
-    def validate_login(self, email, password):
+    def validate_login(
+        self, email: str, password: str
+    ) -> Tuple[bool, str, Optional[str]]:
         return self.user_controller.validate_login(email, password)
 
-    def is_session_valid(self, session_token):
+    def is_session_valid(self, session_token: str) -> bool:
         return self.user_controller.is_session_valid(session_token)
 
-    def get_user_id_from_session(self, session_token):
+    def get_user_id_from_session(self, session_token: str) -> Optional[int]:
         return self.user_controller.get_user_id_from_session(session_token)
 
-    def get_expenses_by_category(self, user_id):
-        return self.finance_tracker.get_expenses_by_category(user_id)
+    def get_expenses_by_category(self, user_id: int) -> Iterable[Dict[str, float]]:
+        return self.finance_controller.get_expenses_by_category(user_id)
 
-    def get_expenses(self, user_id, year=None, month=None, day=None):
-        return self.finance_tracker.get_expenses(user_id, year, month, day)
+    def get_expenses(
+        self,
+        user_id: int,
+        year: Optional[int] = None,
+        month: Optional[int] = None,
+        day: Optional[int] = None,
+    ) -> List[Expense]:
+        return self.finance_controller.get_expenses(user_id, year, month, day)
 
-    def close_sessions(self):
-        self.finance_tracker.close_session()
+    def close_sessions(self) -> None:
+        self.finance_controller.close_session()
         self.user_controller.close_session()

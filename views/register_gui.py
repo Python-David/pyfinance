@@ -1,7 +1,8 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox, ttk
 
-from views.utilities import validate_non_empty, validate_email, validate_password_strength
+from views.utilities import (validate_email, validate_non_empty,
+                             validate_password_strength)
 
 
 class RegisterGUI:
@@ -55,12 +56,17 @@ class RegisterGUI:
 
     def register_user(self):
         username = self.register_username_var.get()
-        email = self.register_email_var.get()  # Optional, based on your application requirements
+        email = (
+            self.register_email_var.get()
+        )  # Optional, based on your application requirements
         password = self.register_password_var.get()
 
         # Validation before attempting to register
-        if not validate_non_empty(username) or not validate_non_empty(email) or not validate_non_empty(
-                password):
+        if (
+            not validate_non_empty(username)
+            or not validate_non_empty(email)
+            or not validate_non_empty(password)
+        ):
             messagebox.showerror("Registration Failed", "All fields are required.")
             return
 
@@ -76,7 +82,11 @@ class RegisterGUI:
         # Delegate the registration logic to the controller
         success, message = self.controller.register_new_user(username, email, password)
         if success:
-            messagebox.showinfo("Registration Successful", message, command=self.register_success_callback)
+            messagebox.showinfo(
+                "Registration Successful",
+                message,
+                command=self.register_success_callback,
+            )
             # Any additional logic to transition to another part of the application
         else:
             messagebox.showerror("Registration Failed", message)

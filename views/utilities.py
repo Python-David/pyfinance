@@ -30,7 +30,13 @@ def validate_password_strength(password):
     lowercase_error = re.search(r"[a-z]", password) is None
     symbol_error = re.search(r"\W", password) is None
 
-    if length_error or digit_error or uppercase_error or lowercase_error or symbol_error:
+    if (
+        length_error
+        or digit_error
+        or uppercase_error
+        or lowercase_error
+        or symbol_error
+    ):
         message = "Password must be at least 8 characters long, include a mix of upper and lower case letters, have at least one number, and one special character."
         return False, message
     else:
@@ -44,7 +50,7 @@ def validate_and_convert_date(date_str):
         return None, message  # Return early if the date format is invalid
 
     try:
-        date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+        date_obj = datetime.strptime(date_str, DATE_FORMAT).date()
         return date_obj, "Date is valid."
     except ValueError as e:
         return None, f"Date conversion error: {e}"

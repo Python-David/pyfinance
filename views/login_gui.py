@@ -1,12 +1,14 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox, ttk
 
-from views.utilities import validate_non_empty, validate_email
+from views.utilities import validate_email, validate_non_empty
 
 
 class LoginGUI:
     def __init__(self, parent, controller, login_success_callback):
-        self.parent = parent  # The parent widget, likely to be a tab in a Notebook widget
+        self.parent = (
+            parent  # The parent widget, likely to be a tab in a Notebook widget
+        )
         self.controller = controller  # The main controller instance
 
         self.login_success_callback = login_success_callback
@@ -29,7 +31,7 @@ class LoginGUI:
         # Define the form fields
         fields = [
             ("Email", self.login_email_var),
-            ("Password", self.login_password_var)
+            ("Password", self.login_password_var),
         ]
 
         # Create and pack the form fields
@@ -69,7 +71,9 @@ class LoginGUI:
         if success:
             messagebox.showinfo("Login Successful", message)
             # Now, we use the user_id to set the current user in the MainController
-            self.controller.current_user_id = user_id  # Set the current_user_id in MainController
+            self.controller.current_user_id = (
+                user_id  # Set the current_user_id in MainController
+            )
             self.login_success_callback()  # Call the callback without user_id
         else:
             messagebox.showerror("Login Failed", message)

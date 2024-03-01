@@ -5,7 +5,7 @@ from base import Base
 
 
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
@@ -14,7 +14,9 @@ class User(Base):
 
     expenses = relationship("Expense", back_populates="user")
     investments = relationship("Investment", back_populates="user")
-    sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")
+    sessions = relationship(
+        "Session", back_populates="user", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<User(id={self.id}, name='{self.name}', email='{self.email}')>"
