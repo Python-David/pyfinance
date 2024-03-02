@@ -1,6 +1,8 @@
 import os
+from typing import Dict, Iterable, List
 
 import asyncclick as click
+from asyncclick import Context
 from matplotlib import pyplot as plt
 
 from cli.utilities import requires_login
@@ -10,14 +12,16 @@ from controllers.main_controller import MainController
 @click.command()
 @requires_login
 @click.pass_context
-async def show(ctx):
+async def show(ctx: Context) -> None:
     """Generate and save a plot of expenses by category."""
-    user_id = MainController().get_user_id_from_session(ctx.obj.session_token)
+    user_id: int = MainController().get_user_id_from_session(ctx.obj.session_token)
 
-    expenses_generator = MainController().get_expenses_by_category(user_id)
+    expenses_generator: Iterable[Dict[str, float]] = (
+        MainController().get_expenses_by_category(user_id)
+    )
 
-    categories = []
-    amounts = []
+    categories: List[str] = []
+    amounts: List[float] = []
 
     try:
         for item in expenses_generator:
@@ -27,8 +31,8 @@ async def show(ctx):
                 return
             else:
                 # Append category and total_amount to their respective lists
-                categories.append(item['category'])
-                amounts.append(item['total_amount'])
+                categories.append(item["category"])
+                amounts.append(item["total_amount"])
 
         if not categories:
             click.echo("No expenses to plot.")
@@ -36,10 +40,10 @@ async def show(ctx):
 
         # Proceed with plotting only if data is available
         plt.figure(figsize=(10, 6))
-        plt.bar(categories, amounts, color='skyblue')
-        plt.xlabel('Category')
-        plt.ylabel('Total Amount Spent')
-        plt.title('Expenses by Category')
+        plt.bar(categories, amounts, color="skyblue")
+        plt.xlabel("Category")
+        plt.ylabel("Total Amount Spent")
+        plt.title("Expenses by Category")
         plt.xticks(rotation=45, ha="right")
 
         # Saving the plot to a file

@@ -1,12 +1,11 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox, ttk
 
 from config import APP_TITLE
-
-from views.register_gui import RegisterGUI
 from views.expense_gui import ExpenseGUI
 from views.investment_gui import InvestmentGUI
 from views.login_gui import LoginGUI
+from views.register_gui import RegisterGUI
 
 
 class PyFinanceGUI:
@@ -22,12 +21,16 @@ class PyFinanceGUI:
         self.tab_control = ttk.Notebook(master)
 
         # Initialize the GUI components for login, register, expenses, and investments
-        self.login_gui = LoginGUI(self.tab_control, self.controller, self.on_login_success)
-        self.register_gui = RegisterGUI(self.tab_control, self.controller, self.on_login_success)
+        self.login_gui = LoginGUI(
+            self.tab_control, self.controller, self.on_login_success
+        )
+        self.register_gui = RegisterGUI(
+            self.tab_control, self.controller, self.on_login_success
+        )
 
         # Add login and register tabs
-        self.tab_control.add(self.login_gui.frame, text='Login')
-        self.tab_control.add(self.register_gui.frame, text='Register')
+        self.tab_control.add(self.login_gui.frame, text="Login")
+        self.tab_control.add(self.register_gui.frame, text="Register")
 
         # These tabs will be added after successful login or registration
         self.expense_gui = None
@@ -45,15 +48,15 @@ class PyFinanceGUI:
         height = int(screen_height * 0.8)
         x_position = (screen_width // 2) - (width // 2)
         y_position = (screen_height // 2) - (height // 2)
-        self.master.geometry(f'{width}x{height}+{x_position}+{y_position}')
+        self.master.geometry(f"{width}x{height}+{x_position}+{y_position}")
 
     def initialize_application_tabs(self):
         # Initialize and add tabs for expenses and investments
         self.expense_gui = ExpenseGUI(self.tab_control, self.controller)
         self.investment_gui = InvestmentGUI(self.tab_control, self.controller)
 
-        self.tab_control.add(self.expense_gui.frame, text='Expenses')
-        self.tab_control.add(self.investment_gui.frame, text='Investments')
+        self.tab_control.add(self.expense_gui.frame, text="Expenses")
+        self.tab_control.add(self.investment_gui.frame, text="Investments")
 
         # Add a logout option
         self.add_logout_option()
@@ -65,7 +68,9 @@ class PyFinanceGUI:
         self.logout_frame = ttk.Frame(self.master)
         self.logout_frame.pack(fill=tk.X, side=tk.TOP)
 
-        self.logout_button = ttk.Button(self.logout_frame, text="Logout", command=self.logout_user)
+        self.logout_button = ttk.Button(
+            self.logout_frame, text="Logout", command=self.logout_user
+        )
         self.logout_button.pack(pady=10, padx=10)
 
     def on_login_success(self):
@@ -84,8 +89,8 @@ class PyFinanceGUI:
             self.investment_gui = None
 
         # Show the Login/Register tabs again
-        self.tab_control.add(self.login_gui.frame, text='Login')
-        self.tab_control.add(self.register_gui.frame, text='Register')
+        self.tab_control.add(self.login_gui.frame, text="Login")
+        self.tab_control.add(self.register_gui.frame, text="Register")
         self.tab_control.select(self.login_gui.frame)  # Focus on login tab
 
         # Remove or hide the logout button

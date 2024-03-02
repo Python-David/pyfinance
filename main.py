@@ -1,6 +1,7 @@
 import tkinter as tk
-from views.central_gui import PyFinanceGUI
+
 from controllers.main_controller import MainController
+from views.central_gui import PyFinanceGUI
 
 
 def main():
@@ -11,5 +12,5 @@ def main():
     root.mainloop()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
