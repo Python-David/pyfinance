@@ -6,6 +6,7 @@ from asyncclick import Context
 from config import CSV_PATH, EXPENSE_CSV_HEADERS
 from controllers.main_controller import MainController
 from models import Expense
+from models.finance_record import FinanceRecord
 
 from .io_clients.csv_client import CsvClient
 from .utilities import requires_login
@@ -27,11 +28,9 @@ async def add_expense(
     ctx: Context, category: str, amount: float, date_str: str
 ) -> None:
     """Add a new expense."""
-    # Assuming get_user_id_from_session is synchronous, directly using without await
     user_id: int = MainController().get_user_id_from_session(ctx.obj.session_token)
-
-    # Assuming add_expense is synchronous as well
-    success, message = MainController().add_expense(user_id, category, amount, date_str)
+    expense_record = FinanceRecord(user_id=user_id, category=category, amount=amount, date=date_str)
+    success, message = MainController().add_expense(expense_record)
     if success:
         click.echo(f"Success. | {message}")
     else:

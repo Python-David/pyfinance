@@ -5,6 +5,7 @@ from asyncclick import Context
 
 from config import INVESTMENT_CSV_HEADERS
 from controllers.main_controller import MainController
+from models.finance_record import FinanceRecord
 
 from .io_clients.csv_client import CsvClient
 from .utilities import requires_login
@@ -26,12 +27,9 @@ async def add_investment(
     ctx: Context, investment_type: str, amount: float, date_str: str
 ) -> None:
     """Add a new investment."""
-    controller: MainController = MainController()
-    user_id: int = controller.get_user_id_from_session(ctx.obj.session_token)
-
-    success, message = controller.add_investment(
-        user_id, investment_type, amount, date_str
-    )
+    user_id: int = MainController().get_user_id_from_session(ctx.obj.session_token)
+    investment_record = FinanceRecord(user_id=user_id, investment_type=investment_type, amount=amount, date=date_str)
+    success, message = MainController().add_investment(investment_record)
     if success:
         click.echo(f"Investment added successfully. | {message}")
     else:

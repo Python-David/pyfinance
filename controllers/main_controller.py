@@ -3,6 +3,7 @@ from typing import Dict, Iterable, List, Optional, Tuple
 from controllers.finance_controller import FinanceController
 from controllers.user_controller import UserController
 from models import Expense
+from models.finance_record import FinanceRecord
 
 
 class MainController:
@@ -11,17 +12,11 @@ class MainController:
         self.user_controller: UserController = UserController()
         self.current_user_id: Optional[int] = None
 
-    def add_expense(
-        self, user_id: int, category: str, amount: float, date_str: str
-    ) -> Tuple[bool, str]:
-        return self.finance_controller.add_expense(user_id, category, amount, date_str)
+    def add_expense(self, expense_record: FinanceRecord) -> Tuple[bool, str]:
+        return self.finance_controller.add_expense(expense_record)
 
-    def add_investment(
-        self, user_id: int, investment_type: str, amount: float, date_str: str
-    ) -> Tuple[bool, str]:
-        return self.finance_controller.add_investment(
-            user_id, investment_type, amount, date_str
-        )
+    def add_investment(self, investment_record: FinanceRecord) -> Tuple[bool, str]:
+        return self.finance_controller.add_investment(investment_record)
 
     def register_new_user(
         self, name: str, email: str, password: str

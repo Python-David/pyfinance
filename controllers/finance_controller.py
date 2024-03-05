@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from database import SessionLocal
 from models.expense import Expense
+from models.finance_record import FinanceRecord
 from models.investment import Investment
 from views.utilities import validate_and_convert_date
 
@@ -15,58 +16,46 @@ class FinanceController:
         # Initialize a new SQLAlchemy session
         self.db_session = SessionLocal()
 
-    def add_expense(
-        self, user_id: int, category: str, amount: float, date: str
-    ) -> Tuple[bool, str]:
-        # First, validate the date format
-        date_obj, message = validate_and_convert_date(date)
+    def add_expense(self, expense_record: FinanceRecord) -> Tuple[bool, str]:
+        date_obj, message = validate_and_convert_date(expense_record.date)
         if date_obj is None:
-            return False, message  # Return early if the date is invalid
+            return False, message
         try:
             new_expense = Expense(
-                user_id=user_id, category=category, amount=amount, date=date_obj
+                user_id=expense_record.user_id,
+                category=expense_record.category,
+                amount=expense_record.amount,
+                date=date_obj
             )
             self.db_session.add(new_expense)
             self.db_session.commit()
             return True, "Expense added successfully."
         except IntegrityError as e:
-            self.db_session.rollback()  # Rollback in case of an error
+            self.db_session.rollback()
             return False, "Failed to add expense: a similar expense already exists."
         except Exception as e:
-            self.db_session.rollback()  # Rollback the session to undo the operation in case of error
+            self.db_session.rollback()
             return False, f"Failed to add expense: {e}"
 
-    def add_investment(
-        self,
-        user_id: int,
-        investment_type: str,
-        amount: float,
-        date: str,
-        returns: Optional[float] = None,
-    ) -> Tuple[bool, str]:
-        # First, validate the date format
-        date_obj, message = validate_and_convert_date(date)
+    def add_investment(self, investment_record: FinanceRecord) -> Tuple[bool, str]:
+        date_obj, message = validate_and_convert_date(investment_record.date)
         if date_obj is None:
-            return False, message  # Return early if the date format is invalid
+            return False, message
         try:
             new_investment = Investment(
-                user_id=user_id,
-                type=investment_type,
-                amount=amount,
-                date=date_obj,
-                returns=returns,
+                user_id=investment_record.user_id,
+                type=investment_record.investment_type,
+                amount=investment_record.amount,
+                date=date_obj
             )
             self.db_session.add(new_investment)
             self.db_session.commit()
             return True, "Investment added successfully."
         except IntegrityError as e:
-            self.db_session.rollback()  # Rollback in case of an error
-            return (
-                False,
-                "Failed to add investment: a similar investment already exists.",
-            )
+            self.db_session.rollback()
+            return False, "Failed to add investment: a similar investment already exists."
         except Exception as e:
-            self.db_session.rollback()  # Rollback in case of an error
+            self.db_session.rollback()
             return False, f"Failed to add investment: {e}"
 
     def get_expenses_by_category(self, user_id: int) -> Iterator[Dict[str, float]]:
