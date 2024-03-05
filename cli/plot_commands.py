@@ -12,6 +12,9 @@ from controllers.main_controller import MainController
 @click.command()
 @requires_login
 @click.pass_context
+
+# Make this guy modular (dates, time etc.)
+
 async def show(ctx: Context) -> None:
     """Generate and save a plot of expenses by category."""
     user_id: int = MainController().get_user_id_from_session(ctx.obj.session_token)

@@ -14,6 +14,8 @@ class Expense(Base):
     date = Column(Date, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
 
+    # description
+
     user = relationship("User", back_populates="expenses")
 
     # Define a unique constraint for category, amount, date, and user_id
