@@ -52,20 +52,27 @@ class FinanceController:
             self.db_session.rollback()
             return False, f"Failed to add {record_class.__name__.lower()}: {e}"
 
-    def get_expenses_by_category(self, user_id: int) -> Iterator[Dict[str, float]]:
-        """Yield expenses aggregated by category for a specific user using a generator."""
+    def get_expenses_by_category(self, finance_filter: FinanceFilter) -> Iterator[Dict[str, float]]:
+        """Yield expenses aggregated by category for a specific user, optionally filtered by year, month, and day."""
         try:
-            # Query to aggregate expenses by category
-            expenses_by_category_query = (
+            query = (
                 self.db_session.query(
                     Expense.category, func.sum(Expense.amount).label("total_amount")
                 )
-                    .filter(Expense.user_id == user_id)
-                    .group_by(Expense.category)
+                    .filter(Expense.user_id == finance_filter.user_id)
             )
 
-            # Use a generator to yield each result one at a time
-            for expense in expenses_by_category_query:
+            # Apply filters based on provided arguments
+            if finance_filter.year:
+                query = query.filter(func.extract("year", Expense.date) == finance_filter.year)
+            if finance_filter.month:
+                query = query.filter(func.extract("month", Expense.date) == finance_filter.month)
+            if finance_filter.day:
+                query = query.filter(func.extract("day", Expense.date) == finance_filter.day)
+
+            query = query.group_by(Expense.category)
+
+            for expense in query:
                 yield {
                     "category": expense.category,
                     "total_amount": float(expense.total_amount),

@@ -36,8 +36,8 @@ class MainController:
     def get_user_id_from_session(self, session_token: str) -> Optional[int]:
         return self.user_controller.get_user_id_from_session(session_token)
 
-    def get_expenses_by_category(self, user_id: int) -> Iterable[Dict[str, float]]:
-        return self.finance_controller.get_expenses_by_category(user_id)
+    def get_expenses_by_category(self, finance_filter: FinanceFilter) -> Iterable[Dict[str, float]]:
+        return self.finance_controller.get_expenses_by_category(finance_filter)
 
     def get_expenses(self, finance_filter: FinanceFilter) -> List[Expense]:
         """Fetch expenses for a specific user, filtered by year, month, and day."""

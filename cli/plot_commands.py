@@ -1,30 +1,38 @@
+import calendar
 import os
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable, List, Optional
 
 import asyncclick as click
 from asyncclick import Context
 from matplotlib import pyplot as plt
 
-from cli.utilities import requires_login
+from cli.utilities import requires_login, plot_expenses_by_category
 from controllers.main_controller import MainController
+from models.finance_data import FinanceFilter
 
 
 @click.command()
 @requires_login
+@click.option("-y", "--year", type=int, help="Filter expenses by year.")
+@click.option("-m", "--month", type=int, help="Filter expenses by month (1-12).")
+@click.option("-d", "--day", type=int, help="Filter expenses by day (1-31).")
 @click.pass_context
-
-# Make this guy modular (dates, time etc.)
-
-async def show(ctx: Context) -> None:
+async def show(
+    ctx: Context,
+    year: Optional[int] = None,
+    month: Optional[int] = None,
+    day: Optional[int] = None
+) -> None:
     """Generate and save a plot of expenses by category."""
     user_id: int = MainController().get_user_id_from_session(ctx.obj.session_token)
 
+    finance_filter = FinanceFilter(user_id=user_id, year=year, month=month, day=day)
     expenses_generator: Iterable[Dict[str, float]] = (
-        MainController().get_expenses_by_category(user_id)
+        MainController().get_expenses_by_category(finance_filter)
     )
 
-    categories: List[str] = []
-    amounts: List[float] = []
+    categories = []
+    amounts = []
 
     try:
         for item in expenses_generator:
@@ -41,18 +49,21 @@ async def show(ctx: Context) -> None:
             click.echo("No expenses to plot.")
             return
 
-        # Proceed with plotting only if data is available
-        plt.figure(figsize=(10, 6))
-        plt.bar(categories, amounts, color="skyblue")
-        plt.xlabel("Category")
-        plt.ylabel("Total Amount Spent")
-        plt.title("Expenses by Category")
-        plt.xticks(rotation=45, ha="right")
+        # Construct the title with filter information
+        title = "Expenses by Category"
+        if year:
+            title += f" in {year}"
+            if month:
+                title += f" - {calendar.month_name[month]}"
+                if day:
+                    title += f" {day}"
+        elif month:
+            title += f" in {calendar.month_name[month]}"
+            if day:
+                title += f" {day}"
 
-        # Saving the plot to a file
         plot_filename = f"user_{user_id}_expenses_by_category.png"
-        plt.savefig(plot_filename)
-        plt.close()  # Close the figure to free memory
+        plot_expenses_by_category(categories, amounts, title, plot_filename)
 
         # Providing the file path to the user
         click.echo(f"Plot saved to: {os.path.abspath(plot_filename)}")
