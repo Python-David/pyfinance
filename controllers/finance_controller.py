@@ -25,7 +25,8 @@ class FinanceController:
                 user_id=expense_record.user_id,
                 category=expense_record.category,
                 amount=expense_record.amount,
-                date=date_obj
+                date=date_obj,
+                description=expense_record.description,
             )
             self.db_session.add(new_expense)
             self.db_session.commit()
@@ -46,7 +47,8 @@ class FinanceController:
                 user_id=investment_record.user_id,
                 type=investment_record.investment_type,
                 amount=investment_record.amount,
-                date=date_obj
+                date=date_obj,
+                description=investment_record.description,
             )
             self.db_session.add(new_investment)
             self.db_session.commit()

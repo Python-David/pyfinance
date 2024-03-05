@@ -22,13 +22,24 @@ from .utilities import requires_login
     required=True,
     help="Date of the investment in YYYY-MM-DD format.",
 )
+@click.option("-desc", "--description", required=False, help="Description of the expense.")
 @click.pass_context
 async def add_investment(
-    ctx: Context, investment_type: str, amount: float, date_str: str
+    ctx: Context,
+    investment_type: str,
+    amount: float,
+    date_str: str,
+    description: str = None,
 ) -> None:
     """Add a new investment."""
     user_id: int = MainController().get_user_id_from_session(ctx.obj.session_token)
-    investment_record = FinanceRecord(user_id=user_id, investment_type=investment_type, amount=amount, date=date_str)
+    investment_record = FinanceRecord(
+        user_id=user_id,
+        investment_type=investment_type,
+        amount=amount,
+        date=date_str,
+        description=description,
+    )
     success, message = MainController().add_investment(investment_record)
     if success:
         click.echo(f"Investment added successfully. | {message}")

@@ -13,8 +13,7 @@ class Expense(Base):
     amount = Column(Float, nullable=False)
     date = Column(Date, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
-
-    # description
+    description = Column(String, nullable=True)
 
     user = relationship("User", back_populates="expenses")
 

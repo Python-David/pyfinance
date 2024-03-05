@@ -23,13 +23,14 @@ from .utilities import requires_login
     required=True,
     help="Date of the expense in YYYY-MM-DD format.",
 )
+@click.option("-desc", "--description", required=False, help="Description of the expense.")
 @click.pass_context
 async def add_expense(
-    ctx: Context, category: str, amount: float, date_str: str
+    ctx: Context, category: str, amount: float, date_str: str, description: str = None
 ) -> None:
     """Add a new expense."""
     user_id: int = MainController().get_user_id_from_session(ctx.obj.session_token)
-    expense_record = FinanceRecord(user_id=user_id, category=category, amount=amount, date=date_str)
+    expense_record = FinanceRecord(user_id=user_id, category=category, amount=amount, date=date_str, description=description)
     success, message = MainController().add_expense(expense_record)
     if success:
         click.echo(f"Success. | {message}")

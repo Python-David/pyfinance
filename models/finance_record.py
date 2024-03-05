@@ -8,3 +8,4 @@ class FinanceRecord:
     date: str
     category: str = None
     investment_type: str = None
+    description: str = None
