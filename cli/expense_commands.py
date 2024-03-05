@@ -3,10 +3,10 @@ from typing import Dict, List, Optional, Tuple
 import asyncclick as click
 from asyncclick import Context
 
-from config import CSV_PATH, EXPENSE_CSV_HEADERS
+from config import EXPENSE_CSV_HEADERS, EXPENSE_CSV_PATH
 from controllers.main_controller import MainController
 from models import Expense
-from models.finance_record import FinanceRecord
+from models.finance_data import FinanceRecord, FinanceFilter
 
 from .io_clients.csv_client import CsvClient
 from .utilities import requires_login
@@ -64,9 +64,15 @@ async def add_expenses_from_csv(ctx: Context, file_path: str) -> None:
             category: str = row["CATEGORY"]
             amount: float = float(row["AMOUNT"])  # Ensure amount is a float
             date_str: str = row["DATE"]
-            success, message = MainController().add_expense(
-                user_id, category, amount, date_str
+            description: str = row.get("DESCRIPTION", "")
+            expense_record = FinanceRecord(
+                user_id=user_id,
+                category=category,
+                amount=amount,
+                date=date_str,
+                description=description
             )
+            success, message = MainController().add_expense(expense_record)
             if success:
                 click.echo(
                     f"Added expense: {category}, {amount}, {date_str}. | {message}"
@@ -107,9 +113,9 @@ async def list_expenses(
     """List out expenses, optionally filtered by month. Shows current month if no month is specified."""
     user_id: int = MainController().get_user_id_from_session(ctx.obj.session_token)
 
-    expenses: List[Expense] = MainController().get_expenses(
-        user_id, year=year, month=month, day=day
-    )
+    finance_filter = FinanceFilter(user_id=user_id, year=year, month=month, day=day)
+
+    expenses: List[Expense] = MainController().get_expenses(finance_filter)
 
     if not expenses:
         click.echo("No expenses found.")
@@ -117,7 +123,7 @@ async def list_expenses(
 
     if show_csv:
         # Define the path where you want to save the CSV
-        csv_path: str = CSV_PATH
+        csv_path: str = EXPENSE_CSV_PATH
         headers: List[str] = ["Category", "Amount", "Date"]
         csv_client: CsvClient = CsvClient(file_path=csv_path, headers=headers)
 

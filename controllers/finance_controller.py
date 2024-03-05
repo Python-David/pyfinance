@@ -1,12 +1,13 @@
 from datetime import datetime
-from typing import Dict, Iterator, List, Optional, Tuple
+from typing import Dict, Iterator, List, Optional, Tuple, Union, Type
 
 from sqlalchemy import and_, func
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Query
 
 from database import SessionLocal
 from models.expense import Expense
-from models.finance_record import FinanceRecord
+from models.finance_data import FinanceRecord, FinanceFilter
 from models.investment import Investment
 from views.utilities import validate_and_convert_date
 
@@ -16,49 +17,40 @@ class FinanceController:
         # Initialize a new SQLAlchemy session
         self.db_session = SessionLocal()
 
-    def add_expense(self, expense_record: FinanceRecord) -> Tuple[bool, str]:
-        date_obj, message = validate_and_convert_date(expense_record.date)
+    def add_finance_record(self, finance_record: FinanceRecord, record_class: Type[Union[Expense, Investment]]) -> \
+    Tuple[bool, str]:
+        date_obj, message = validate_and_convert_date(finance_record.date)
         if date_obj is None:
             return False, message
         try:
-            new_expense = Expense(
-                user_id=expense_record.user_id,
-                category=expense_record.category,
-                amount=expense_record.amount,
-                date=date_obj,
-                description=expense_record.description,
-            )
-            self.db_session.add(new_expense)
-            self.db_session.commit()
-            return True, "Expense added successfully."
-        except IntegrityError as e:
-            self.db_session.rollback()
-            return False, "Failed to add expense: a similar expense already exists."
-        except Exception as e:
-            self.db_session.rollback()
-            return False, f"Failed to add expense: {e}"
+            if record_class == Expense:
+                new_record = Expense(
+                    user_id=finance_record.user_id,
+                    category=finance_record.category,
+                    amount=finance_record.amount,
+                    date=date_obj,
+                    description=finance_record.description,
+                )
+            elif record_class == Investment:
+                new_record = Investment(
+                    user_id=finance_record.user_id,
+                    type=finance_record.investment_type,
+                    amount=finance_record.amount,
+                    date=date_obj,
+                    description=finance_record.description,
+                )
+            else:
+                return False, "Invalid record class."
 
-    def add_investment(self, investment_record: FinanceRecord) -> Tuple[bool, str]:
-        date_obj, message = validate_and_convert_date(investment_record.date)
-        if date_obj is None:
-            return False, message
-        try:
-            new_investment = Investment(
-                user_id=investment_record.user_id,
-                type=investment_record.investment_type,
-                amount=investment_record.amount,
-                date=date_obj,
-                description=investment_record.description,
-            )
-            self.db_session.add(new_investment)
+            self.db_session.add(new_record)
             self.db_session.commit()
-            return True, "Investment added successfully."
+            return True, f"{record_class.__name__} added successfully."
         except IntegrityError as e:
             self.db_session.rollback()
-            return False, "Failed to add investment: a similar investment already exists."
+            return False, f"Failed to add {record_class.__name__.lower()}: a similar record already exists."
         except Exception as e:
             self.db_session.rollback()
-            return False, f"Failed to add investment: {e}"
+            return False, f"Failed to add {record_class.__name__.lower()}: {e}"
 
     def get_expenses_by_category(self, user_id: int) -> Iterator[Dict[str, float]]:
         """Yield expenses aggregated by category for a specific user using a generator."""
@@ -68,8 +60,8 @@ class FinanceController:
                 self.db_session.query(
                     Expense.category, func.sum(Expense.amount).label("total_amount")
                 )
-                .filter(Expense.user_id == user_id)
-                .group_by(Expense.category)
+                    .filter(Expense.user_id == user_id)
+                    .group_by(Expense.category)
             )
 
             # Use a generator to yield each result one at a time
@@ -86,38 +78,34 @@ class FinanceController:
                 "message": f"Failed to fetch expenses by category: {e}",
             }
 
-    def get_expenses(
-        self,
-        user_id: int,
-        year: Optional[int] = None,
-        month: Optional[int] = None,
-        day: Optional[int] = None,
-    ) -> List[Expense]:
-        """Fetch expenses for a specific user, filtered by year, month, and day, all optional."""
-        query = self.db_session.query(Expense).filter(Expense.user_id == user_id)
+    def get_finance_records(
+            self,
+            finance_filter: FinanceFilter,
+            record_class: Union[Type[Expense], Type[Investment]]
+    ) -> List[Union[Expense, Investment]]:
+        """Fetch finance records (expenses or investments) for a specific user, filtered by year, month, and day."""
+        query: Query = self.db_session.query(record_class).filter(record_class.user_id == finance_filter.user_id)
 
         # Apply filters based on provided arguments
-        if year:
-            query = query.filter(func.extract("year", Expense.date) == year)
-        if month:
-            query = query.filter(func.extract("month", Expense.date) == month)
-        if day:
-            query = query.filter(func.extract("day", Expense.date) == day)
+        if finance_filter.year:
+            query = query.filter(func.extract("year", record_class.date) == finance_filter.year)
+        if finance_filter.month:
+            query = query.filter(func.extract("month", record_class.date) == finance_filter.month)
+        if finance_filter.day:
+            query = query.filter(func.extract("day", record_class.date) == finance_filter.day)
 
         # If no year, month, or day is specified, default to the current month and year
-        if not any([year, month, day]):
+        if not any([finance_filter.year, finance_filter.month, finance_filter.day]):
             today = datetime.now()
             query = query.filter(
                 and_(
-                    func.extract("year", Expense.date) == today.year,
-                    func.extract("month", Expense.date) == today.month,
+                    func.extract("year", record_class.date) == today.year,
+                    func.extract("month", record_class.date) == today.month,
                 )
             )
 
         # Order by date for chronological listing
-        query = query.order_by(Expense.date.asc())
-
-        return query.all()
+        return query.order_by(record_class.date.asc()).all()
 
     # Make sure to close the session when it's no longer needed
     def close_session(self) -> None:

@@ -14,9 +14,10 @@ DATE_FORMAT = os.environ.get("DATE_FORMAT", "%Y-%m-%d")
 MAX_DATE = os.environ.get("MAX_DATE", "19-12-2014")
 
 # CSV settings
-CSV_PATH = os.environ.get("CSV_PATH", "expenses.csv")
-EXPENSE_CSV_HEADERS = ["CATEGORY", "AMOUNT", "DATE"]
-INVESTMENT_CSV_HEADERS = ["TYPE", "AMOUNT", "DATE"]
+EXPENSE_CSV_PATH = os.environ.get("EXPENSE_CSV_PATH", "expenses.csv")
+INVESTMENT_CSV_PATH = os.environ.get("INVESTMENT_CSV_PATH", "investments.csv")
+EXPENSE_CSV_HEADERS = ["CATEGORY", "AMOUNT", "DATE", "DESCRIPTION"]
+INVESTMENT_CSV_HEADERS = ["TYPE", "AMOUNT", "DATE", "DESCRIPTION"]
 
 # Database configuration
 DATABASE_URL = os.environ.get("DATABASE_URL")

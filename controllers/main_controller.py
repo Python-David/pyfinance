@@ -2,8 +2,8 @@ from typing import Dict, Iterable, List, Optional, Tuple
 
 from controllers.finance_controller import FinanceController
 from controllers.user_controller import UserController
-from models import Expense
-from models.finance_record import FinanceRecord
+from models import Expense, Investment
+from models.finance_data import FinanceRecord, FinanceFilter
 
 
 class MainController:
@@ -13,10 +13,12 @@ class MainController:
         self.current_user_id: Optional[int] = None
 
     def add_expense(self, expense_record: FinanceRecord) -> Tuple[bool, str]:
-        return self.finance_controller.add_expense(expense_record)
+        """Add a new expense."""
+        return self.finance_controller.add_finance_record(expense_record, Expense)
 
     def add_investment(self, investment_record: FinanceRecord) -> Tuple[bool, str]:
-        return self.finance_controller.add_investment(investment_record)
+        """Add a new investment."""
+        return self.finance_controller.add_finance_record(investment_record, Investment)
 
     def register_new_user(
         self, name: str, email: str, password: str
@@ -37,14 +39,13 @@ class MainController:
     def get_expenses_by_category(self, user_id: int) -> Iterable[Dict[str, float]]:
         return self.finance_controller.get_expenses_by_category(user_id)
 
-    def get_expenses(
-        self,
-        user_id: int,
-        year: Optional[int] = None,
-        month: Optional[int] = None,
-        day: Optional[int] = None,
-    ) -> List[Expense]:
-        return self.finance_controller.get_expenses(user_id, year, month, day)
+    def get_expenses(self, finance_filter: FinanceFilter) -> List[Expense]:
+        """Fetch expenses for a specific user, filtered by year, month, and day."""
+        return self.finance_controller.get_finance_records(finance_filter, Expense)
+
+    def get_investments(self, finance_filter: FinanceFilter) -> List[Investment]:
+        """Fetch investments for a specific user, filtered by year, month, and day."""
+        return self.finance_controller.get_finance_records(finance_filter, Investment)
 
     def close_sessions(self) -> None:
         self.finance_controller.close_session()

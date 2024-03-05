@@ -1,12 +1,12 @@
-TYPE,AMOUNT,DATE
-Stocks,100.50,2023-01-15
-Crypto,75.00,2023-01-20
-Government Bonds,50.00,2023-01-25
-Mutual Funds,notanumber,2023-02-01
-ETFs,120.00,notadate
-Index Funds,,2023-02-15
-Real Estate,200.50,2023-02-20
-Commodities,150.75,2023-02-25
-Hedge Funds,1000000.00,2023-03-01
-Private Equity,300.25,2023-01-30
-Venture Capital,-500.00,2023-03-05
+TYPE,AMOUNT,DATE,DESCRIPTION
+Stocks,5000.00,2023-01-10,Initial stock investment
+Bonds,3000.00,2023-01-15,
+Real Estate,15000.00,2023-02-01,Down payment for a property
+Cryptocurrency,2000.00,2023-02-10,Bitcoin purchase
+Mutual Funds,4000.00,2023-02-20,
+Stocks,2500.00,2023-03-05,Additional shares in tech companies
+Bonds,2000.00,2023-03-10,
+Real Estate,10000.00,2023-03-25,Investment in a commercial property
+Cryptocurrency,1500.00,2023-04-01,Ethereum purchase
+Mutual Funds,3500.00,2023-04-10,
+
