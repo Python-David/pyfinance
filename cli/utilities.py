@@ -1,8 +1,9 @@
 import os
 from functools import wraps
-from typing import Any, Callable, Coroutine, Optional
+from typing import Any, Callable, Coroutine, List, Optional
 
 import asyncclick as click
+from matplotlib import pyplot as plt
 
 from controllers.main_controller import MainController
 
@@ -47,3 +48,17 @@ def requires_login(
         return await f(*args, **kwargs)
 
     return decorated_function
+
+
+def plot_expenses_by_category(
+    categories: List[str], amounts: List[float], title: str, plot_filename: str
+) -> None:
+    """Plot expenses by category and save the plot to a file."""
+    plt.figure(figsize=(10, 6))
+    plt.bar(categories, amounts, color="skyblue")
+    plt.xlabel("Category")
+    plt.ylabel("Total Amount Spent")
+    plt.title(title)
+    plt.xticks(rotation=45, ha="right")
+    plt.savefig(plot_filename)
+    plt.close()

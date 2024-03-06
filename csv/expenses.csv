@@ -1,22 +1,21 @@
-CATEGORY,AMOUNT,DATE
-Groceries,100.50,2023-01-15
-Utilities,75.00,2023-01-20
-Entertainment,50.00,2023-01-25
-Transportation,45.00,2023-02-01
-Dining Out,120.50,2023-02-05
-Healthcare,200.00,2023-02-10
-Clothing,150.00,2023-02-15
-Education,80.00,2023-02-20
-Gifts,60.00,2023-02-25
-Travel,300.00,2023-03-01
-Fitness,55.00,2023-03-05
-Electronics,220.00,2023-03-10
-Groceries,90.75,2023-03-15
-Utilities,68.25,2023-03-20
-Entertainment,75.00,2023-03-25
-Insurance,100.00,2023-04-01
-Home Maintenance,130.00,2023-04-05
-Pet Care,50.00,2023-04-10
-Books,40.00,2023-04-15
-Gardening,35.00,2023-04-20
-
+CATEGORY,AMOUNT,DATE,DESCRIPTION
+Groceries,100.50,2023-01-15,Weekly grocery shopping
+Utilities,75.00,2023-01-20,Monthly electricity bill
+Entertainment,50.00,2023-01-25,Movie tickets
+Transportation,45.00,2023-02-01,Bus pass for February
+Dining Out,120.50,2023-02-05,Dinner at a fancy restaurant
+Healthcare,200.00,2023-02-10,Doctor's appointment
+Clothing,150.00,2023-02-15,Winter jacket purchase
+Education,80.00,2023-02-20,Textbooks for the new semester
+Gifts,60.00,2023-02-25,Birthday present for a friend
+Travel,300.00,2023-03-01,Weekend getaway
+Fitness,55.00,2023-03-05,Gym membership for March
+Electronics,220.00,2023-03-10,
+Groceries,90.75,2023-03-15,Restocking pantry essentials
+Utilities,68.25,2023-03-20,Water bill
+Entertainment,75.00,2023-03-25,Concert tickets
+Insurance,100.00,2023-04-01,Car insurance renewal
+Home Maintenance,130.00,2023-04-05,Plumbing repairs
+Pet Care,50.00,2023-04-10,Vet visit for the dog
+Books,40.00,2023-04-15,Novels for leisure reading
+Gardening,35.00,2023-04-20,New plants and gardening tools

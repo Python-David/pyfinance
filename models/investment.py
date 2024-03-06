@@ -14,8 +14,7 @@ class Investment(Base):
     date = Column(Date, nullable=False)
     returns = Column(Float)
     user_id = Column(Integer, ForeignKey("users.id"))
-
-    # description
+    description = Column(String, nullable=True)
 
     user = relationship("User", back_populates="investments")
 
