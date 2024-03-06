@@ -3,7 +3,7 @@ from typing import Dict, Iterable, List, Optional, Tuple
 from controllers.finance_controller import FinanceController
 from controllers.user_controller import UserController
 from models import Expense, Investment
-from models.finance_data import FinanceRecord, FinanceFilter
+from models.finance_data import FinanceFilter, FinanceRecord
 
 
 class MainController:
@@ -36,7 +36,9 @@ class MainController:
     def get_user_id_from_session(self, session_token: str) -> Optional[int]:
         return self.user_controller.get_user_id_from_session(session_token)
 
-    def get_expenses_by_category(self, finance_filter: FinanceFilter) -> Iterable[Dict[str, float]]:
+    def get_expenses_by_category(
+        self, finance_filter: FinanceFilter
+    ) -> Iterable[Dict[str, float]]:
         return self.finance_controller.get_expenses_by_category(finance_filter)
 
     def get_expenses(self, finance_filter: FinanceFilter) -> List[Expense]:

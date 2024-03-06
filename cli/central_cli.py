@@ -1,7 +1,8 @@
 import asyncclick as click
 
 from .expense_commands import add_expense, add_expenses_from_csv, list_expenses
-from .investment_commands import add_investment, add_investments_from_csv, list_investments
+from .investment_commands import (add_investment, add_investments_from_csv,
+                                  list_investments)
 from .plot_commands import show
 from .user_commands import login, register
 

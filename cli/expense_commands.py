@@ -6,7 +6,7 @@ from asyncclick import Context
 from config import EXPENSE_CSV_HEADERS, EXPENSE_CSV_PATH
 from controllers.main_controller import MainController
 from models import Expense
-from models.finance_data import FinanceRecord, FinanceFilter
+from models.finance_data import FinanceFilter, FinanceRecord
 
 from .io_clients.csv_client import CsvClient
 from .utilities import requires_login
@@ -23,14 +23,22 @@ from .utilities import requires_login
     required=True,
     help="Date of the expense in YYYY-MM-DD format.",
 )
-@click.option("-desc", "--description", required=False, help="Description of the expense.")
+@click.option(
+    "-desc", "--description", required=False, help="Description of the expense."
+)
 @click.pass_context
 async def add_expense(
     ctx: Context, category: str, amount: float, date_str: str, description: str = None
 ) -> None:
     """Add a new expense."""
     user_id: int = MainController().get_user_id_from_session(ctx.obj.session_token)
-    expense_record = FinanceRecord(user_id=user_id, category=category, amount=amount, date=date_str, description=description)
+    expense_record = FinanceRecord(
+        user_id=user_id,
+        category=category,
+        amount=amount,
+        date=date_str,
+        description=description,
+    )
     success, message = MainController().add_expense(expense_record)
     if success:
         click.echo(f"Success. | {message}")
@@ -70,7 +78,7 @@ async def add_expenses_from_csv(ctx: Context, file_path: str) -> None:
                 category=category,
                 amount=amount,
                 date=date_str,
-                description=description
+                description=description,
             )
             success, message = MainController().add_expense(expense_record)
             if success:

@@ -26,4 +26,3 @@ class Expense(Base):
 
     def __repr__(self):
         return f"<Expense(id={self.id}, category='{self.category}', amount={self.amount}, date='{self.date}')>"
-

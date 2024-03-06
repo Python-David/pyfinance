@@ -6,7 +6,7 @@ import asyncclick as click
 from asyncclick import Context
 from matplotlib import pyplot as plt
 
-from cli.utilities import requires_login, plot_expenses_by_category
+from cli.utilities import plot_expenses_by_category, requires_login
 from controllers.main_controller import MainController
 from models.finance_data import FinanceFilter
 
@@ -21,7 +21,7 @@ async def show(
     ctx: Context,
     year: Optional[int] = None,
     month: Optional[int] = None,
-    day: Optional[int] = None
+    day: Optional[int] = None,
 ) -> None:
     """Generate and save a plot of expenses by category."""
     user_id: int = MainController().get_user_id_from_session(ctx.obj.session_token)

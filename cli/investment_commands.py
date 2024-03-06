@@ -1,4 +1,4 @@
-from typing import List, Tuple, Optional, Dict
+from typing import Dict, List, Optional, Tuple
 
 import asyncclick as click
 from asyncclick import Context
@@ -6,7 +6,7 @@ from asyncclick import Context
 from config import INVESTMENT_CSV_HEADERS, INVESTMENT_CSV_PATH
 from controllers.main_controller import MainController
 from models import Investment
-from models.finance_data import FinanceRecord, FinanceFilter
+from models.finance_data import FinanceFilter, FinanceRecord
 
 from .io_clients.csv_client import CsvClient
 from .utilities import requires_login
@@ -23,14 +23,16 @@ from .utilities import requires_login
     required=True,
     help="Date of the investment in YYYY-MM-DD format.",
 )
-@click.option("-desc", "--description", required=False, help="Description of the expense.")
+@click.option(
+    "-desc", "--description", required=False, help="Description of the expense."
+)
 @click.pass_context
 async def add_investment(
-        ctx: Context,
-        investment_type: str,
-        amount: float,
-        date_str: str,
-        description: str = None,
+    ctx: Context,
+    investment_type: str,
+    amount: float,
+    date_str: str,
+    description: str = None,
 ) -> None:
     """Add a new investment."""
     user_id: int = MainController().get_user_id_from_session(ctx.obj.session_token)
@@ -80,7 +82,7 @@ async def add_investments_from_csv(ctx: Context, file_path: str) -> None:
                 investment_type=investment_name,
                 amount=amount,
                 date=date_str,
-                description=description
+                description=description,
             )
             success, message = MainController().add_investment(investment_record)
             if success:
@@ -111,23 +113,23 @@ async def add_investments_from_csv(ctx: Context, file_path: str) -> None:
 @click.option("-y", "--year", type=int, help="Filter investments by year.")
 @click.option("-m", "--month", type=int, help="Filter investments by month (1-12).")
 @click.option("-d", "--day", type=int, help="Filter investments by day (1-31).")
-@click.option("-s", "--show-csv", is_flag=True, help="Show the investments in CSV format.")
+@click.option(
+    "-s", "--show-csv", is_flag=True, help="Show the investments in CSV format."
+)
 @click.pass_context
 async def list_investments(
-        ctx: Context,
-        year: Optional[int] = None,
-        month: Optional[int] = None,
-        day: Optional[int] = None,
-        show_csv: Optional[bool] = False,
+    ctx: Context,
+    year: Optional[int] = None,
+    month: Optional[int] = None,
+    day: Optional[int] = None,
+    show_csv: Optional[bool] = False,
 ) -> None:
     """List out investments, optionally filtered by year, month, and day."""
     user_id: int = MainController().get_user_id_from_session(ctx.obj.session_token)
 
     finance_filter = FinanceFilter(user_id=user_id, year=year, month=month, day=day)
 
-    investments: List[Investment] = MainController().get_investments(
-        finance_filter
-    )
+    investments: List[Investment] = MainController().get_investments(finance_filter)
 
     if not investments:
         click.echo("No investments found.")
@@ -145,7 +147,7 @@ async def list_investments(
                 "Type": inv.type,
                 "Amount": str(inv.amount),
                 "Date": inv.date.strftime("%Y-%m-%d"),
-                "Description": inv.description or ""
+                "Description": inv.description or "",
             }
             for inv in investments
         ]

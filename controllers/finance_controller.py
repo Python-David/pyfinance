@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, Iterator, List, Optional, Tuple, Union, Type
+from typing import Dict, Iterator, List, Optional, Tuple, Type, Union
 
 from sqlalchemy import and_, func
 from sqlalchemy.exc import IntegrityError
@@ -7,7 +7,7 @@ from sqlalchemy.orm import Query
 
 from database import SessionLocal
 from models.expense import Expense
-from models.finance_data import FinanceRecord, FinanceFilter
+from models.finance_data import FinanceFilter, FinanceRecord
 from models.investment import Investment
 from views.utilities import validate_and_convert_date
 
@@ -17,8 +17,11 @@ class FinanceController:
         # Initialize a new SQLAlchemy session
         self.db_session = SessionLocal()
 
-    def add_finance_record(self, finance_record: FinanceRecord, record_class: Type[Union[Expense, Investment]]) -> \
-    Tuple[bool, str]:
+    def add_finance_record(
+        self,
+        finance_record: FinanceRecord,
+        record_class: Type[Union[Expense, Investment]],
+    ) -> Tuple[bool, str]:
         date_obj, message = validate_and_convert_date(finance_record.date)
         if date_obj is None:
             return False, message
@@ -47,28 +50,36 @@ class FinanceController:
             return True, f"{record_class.__name__} added successfully."
         except IntegrityError as e:
             self.db_session.rollback()
-            return False, f"Failed to add {record_class.__name__.lower()}: a similar record already exists."
+            return (
+                False,
+                f"Failed to add {record_class.__name__.lower()}: a similar record already exists.",
+            )
         except Exception as e:
             self.db_session.rollback()
             return False, f"Failed to add {record_class.__name__.lower()}: {e}"
 
-    def get_expenses_by_category(self, finance_filter: FinanceFilter) -> Iterator[Dict[str, float]]:
+    def get_expenses_by_category(
+        self, finance_filter: FinanceFilter
+    ) -> Iterator[Dict[str, float]]:
         """Yield expenses aggregated by category for a specific user, optionally filtered by year, month, and day."""
         try:
-            query = (
-                self.db_session.query(
-                    Expense.category, func.sum(Expense.amount).label("total_amount")
-                )
-                    .filter(Expense.user_id == finance_filter.user_id)
-            )
+            query = self.db_session.query(
+                Expense.category, func.sum(Expense.amount).label("total_amount")
+            ).filter(Expense.user_id == finance_filter.user_id)
 
             # Apply filters based on provided arguments
             if finance_filter.year:
-                query = query.filter(func.extract("year", Expense.date) == finance_filter.year)
+                query = query.filter(
+                    func.extract("year", Expense.date) == finance_filter.year
+                )
             if finance_filter.month:
-                query = query.filter(func.extract("month", Expense.date) == finance_filter.month)
+                query = query.filter(
+                    func.extract("month", Expense.date) == finance_filter.month
+                )
             if finance_filter.day:
-                query = query.filter(func.extract("day", Expense.date) == finance_filter.day)
+                query = query.filter(
+                    func.extract("day", Expense.date) == finance_filter.day
+                )
 
             query = query.group_by(Expense.category)
 
@@ -86,20 +97,28 @@ class FinanceController:
             }
 
     def get_finance_records(
-            self,
-            finance_filter: FinanceFilter,
-            record_class: Union[Type[Expense], Type[Investment]]
+        self,
+        finance_filter: FinanceFilter,
+        record_class: Union[Type[Expense], Type[Investment]],
     ) -> List[Union[Expense, Investment]]:
         """Fetch finance records (expenses or investments) for a specific user, filtered by year, month, and day."""
-        query: Query = self.db_session.query(record_class).filter(record_class.user_id == finance_filter.user_id)
+        query: Query = self.db_session.query(record_class).filter(
+            record_class.user_id == finance_filter.user_id
+        )
 
         # Apply filters based on provided arguments
         if finance_filter.year:
-            query = query.filter(func.extract("year", record_class.date) == finance_filter.year)
+            query = query.filter(
+                func.extract("year", record_class.date) == finance_filter.year
+            )
         if finance_filter.month:
-            query = query.filter(func.extract("month", record_class.date) == finance_filter.month)
+            query = query.filter(
+                func.extract("month", record_class.date) == finance_filter.month
+            )
         if finance_filter.day:
-            query = query.filter(func.extract("day", record_class.date) == finance_filter.day)
+            query = query.filter(
+                func.extract("day", record_class.date) == finance_filter.day
+            )
 
         # If no year, month, or day is specified, default to the current month and year
         if not any([finance_filter.year, finance_filter.month, finance_filter.day]):
